@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supermart Grocery Sales Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --teal-dark    : #00796b;
+            --teal         : #26a69a;
+            --teal-light   : #80cbc4;
+            --teal-pale    : #e0f2f1;
+            --sea-green    : #2e8b57;
+            --sea-light    : #43a98c;
+            --sea-pale     : #e8f5ee;
+            --gold-dark    : #b8960c;
+            --gold         : #d4af37;
+            --gold-light   : #f1c40f;
+            --gold-pale    : #fffde7;
+            --mint         : #00e5cc;
+            --mint-dark    : #00bfa5;
+            --mint-pale    : #e0faf7;
+            --silver       : #bdbdbd;
+            --silver-light : #eeeeee;
+            --silver-pale  : #fafafa;
+            --silver-dark  : #9e9e9e;
+            --bg-main      : #f5fffe;
+            --bg-card      : #ffffff;
+            --sidebar-bg   : #e8f5f5;
+            --sidebar-hover: #d0eeec;
+            --sidebar-active: #b2dfdb;
+            --text-dark    : #1a3333;
+            --text-grey    : #546e7a;
+            --text-light   : #90a4ae;
+            --text-white   : #ffffff;
+            --border-color : #d0ecea;
+            --shadow       : 0 4px 20px rgba(38,166,154,0.10);
+            --shadow-hover : 0 8px 30px rgba(38,166,154,0.18);
+            --mint-glow    : 0 0 18px rgba(0,229,204,0.25);
+            --silver-glow  : 0 0 16px rgba(189,189,189,0.40);
+            --gold-glow    : 0 0 16px rgba(212,175,55,0.25);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--silver-light); }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--teal), var(--mint));
+            border-radius: 4px;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px 0 0;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 12px rgba(0,121,107,0.25);
+        }
+
+        .topbar-logo {
+            display: flex;
+            align-items: center;
+            width: 260px;
+            height: 64px;
+            background: rgba(0,0,0,0.15);
+            padding: 0 18px;
+            border-right: 1px solid rgba(255,255,255,0.15);
+            gap: 12px;
+        }
+
+        .topbar-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--teal-dark);
+            flex-shrink: 0;
+            box-shadow: var(--gold-glow);
+        }
+
+        .topbar-logo-text {
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .topbar-logo-sub {
+            color: var(--mint);
+            font-size: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topbar-title {
+            color: rgba(255,255,255,0.75);
+            font-size: 13px;
+        }
+
+        .t-badge {
+            padding: 5px 13px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .t-badge-white  { background: rgba(255,255,255,0.15); color: white;          border: 1px solid rgba(255,255,255,0.25); }
+        .t-badge-gold   { background: rgba(212,175,55,0.18);  color: var(--gold-light); border: 1px solid rgba(212,175,55,0.35); }
+        .t-badge-mint   { background: rgba(0,229,204,0.15);   color: var(--mint);    border: 1px solid rgba(0,229,204,0.30);  }
+
+        /* ── Layout ── */
+        .layout {
+            display: flex;
+            margin-top: 64px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            position: fixed;
+            top: 64px; left: 0; bottom: 0;
+            overflow-y: auto;
+            z-index: 900;
+            border-right: 1px solid var(--border-color);
+            box-shadow: 2px 0 10px rgba(38,166,154,0.07);
+        }
+
+        .sidebar-brand {
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--border-color);
+            background: white;
+        }
+
+        .sidebar-brand-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--teal-dark);
+        }
+
+        .sidebar-brand-sub {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .sidebar-section-label {
+            padding: 16px 18px 6px;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--teal);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            width: 100%;
+            padding: 11px 18px;
+            background: transparent;
+            border: none;
+            border-left: 3px solid transparent;
+            color: var(--text-grey);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .sidebar-btn:hover {
+            background: var(--sidebar-hover);
+            color: var(--teal-dark);
+            border-left-color: var(--teal-light);
+        }
+
+        .sidebar-btn.active {
+            background: var(--sidebar-active);
+            color: var(--teal-dark);
+            border-left-color: var(--teal-dark);
+            font-weight: 700;
+        }
+
+        .sidebar-btn-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            flex-shrink: 0;
+            background: white;
+            color: var(--teal);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-btn:hover .sidebar-btn-icon {
+            background: var(--teal-pale);
+            color: var(--teal-dark);
+            border-color: var(--teal-light);
+        }
+
+        .sidebar-btn.active .sidebar-btn-icon {
+            background: var(--teal-dark);
+            color: white;
+            border-color: var(--teal-dark);
+            box-shadow: 0 0 10px rgba(0,229,204,0.30);
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 6px 14px;
+        }
+
+        .sidebar-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 12px;
+            background: white;
+            text-align: center;
+        }
+
+        .sidebar-footer-text {
+            font-size: 10px;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .sidebar-footer-mint {
+            font-size: 11px;
+            color: var(--mint-dark);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* ── Main ── */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 26px 30px;
+        }
+
+        .section { display: none; animation: fadeIn 0.3s ease; }
+        .section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0);   }
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding: 18px 22px;
+            background: white;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--teal-dark);
+            margin-bottom: 3px;
+        }
+
+        .page-subtitle {
+            font-size: 12px;
+            color: var(--text-grey);
+        }
+
+        .page-tag {
+            background: linear-gradient(135deg, var(--teal), var(--mint-dark));
+            color: white;
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: var(--mint-glow);
+            white-space: nowrap;
+        }
+
+        /* ── KPI Cards ── */
+        .kpi-banner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--teal);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--silver-glow), var(--shadow-hover);
+        }
+
+        .kpi-card.gold-top   { border-top-color: var(--gold);      }
+        .kpi-card.mint-top   { border-top-color: var(--mint);      }
+        .kpi-card.sea-top    { border-top-color: var(--sea-green); }
+        .kpi-card.silver-top { border-top-color: var(--silver);    }
+        .kpi-card.teal-top   { border-top-color: var(--teal);      }
+
+        .kpi-sparkle {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--mint);
+            box-shadow: 0 0 6px var(--mint), 0 0 12px var(--mint);
+            animation: sparkle-pulse 2s ease-in-out infinite;
+        }
+
+        .kpi-sparkle.gold   { background: var(--gold-light); box-shadow: 0 0 6px var(--gold-light), 0 0 12px var(--gold); }
+        .kpi-sparkle.silver { background: var(--silver);     box-shadow: 0 0 6px var(--silver),     0 0 12px var(--silver-dark); }
+        .kpi-sparkle.hidden { display: none; }
+
+        @keyframes sparkle-pulse {
+            0%, 100% { opacity: 1;   transform: scale(1);   }
+            50%       { opacity: 0.4; transform: scale(0.6); }
+        }
+
+        .kpi-label {
+            font-size: 10px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .kpi-sub {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        /* ── Chart Cards ── */
+        .chart-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px 22px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .chart-card:hover {
+            box-shadow: var(--silver-glow), var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .chart-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--teal-pale);
+        }
+
+        .chart-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--teal-dark);
+            margin-bottom: 3px;
+        }
+
+        .chart-card-subtitle {
+            font-size: 12px;
+            color: var(--text-grey);
+        }
+
+        .chart-card-badge {
+            padding: 3px 11px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--silver-pale);
+            color: var(--silver-dark);
+            border: 1px solid var(--silver-light);
+            white-space: nowrap;
+        }
+
+        .chart-container    { position: relative; height: 300px; }
+        .chart-container-sm { position: relative; height: 240px; }
+        .chart-container-md { position: relative; height: 270px; }
+        .chart-container-lg { position: relative; height: 340px; }
+
+        .charts-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        /* ── Stat Row ── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            border-top: 3px solid var(--teal);
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-box:hover {
+            box-shadow: var(--mint-glow);
+            border-color: var(--teal-light);
+            transform: translateY(-3px);
+        }
+
+        .stat-box-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .stat-box-label {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        /* ── Tables ── */
+        .table-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px 22px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin-bottom: 20px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .table-card:hover {
+            box-shadow: var(--silver-glow), var(--shadow-hover);
+        }
+
+        .table-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--teal-pale);
+        }
+
+        .table-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--teal-dark);
+            margin-bottom: 3px;
+        }
+
+        .table-card-subtitle {
+            font-size: 12px;
+            color: var(--text-grey);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+        thead tr {
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+        }
+
+        thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--gold-light);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:hover { background: var(--teal-pale); }
+        tbody tr:nth-child(even) { background: var(--silver-pale); }
+        tbody tr:nth-child(even):hover { background: var(--teal-pale); }
+
+        tbody td {
+            padding: 11px 16px;
+            color: var(--text-dark);
+            vertical-align: middle;
+        }
+
+        /* ── Badges ── */
+        .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-teal   { background: var(--teal-pale);   color: var(--teal-dark);  border: 1px solid var(--teal-light);  }
+        .badge-mint   { background: var(--mint-pale);   color: var(--mint-dark);  border: 1px solid rgba(0,229,204,0.3);}
+        .badge-gold   { background: var(--gold-pale);   color: var(--gold-dark);  border: 1px solid rgba(212,175,55,0.3);}
+        .badge-sea    { background: var(--sea-pale);    color: var(--sea-green);  border: 1px solid rgba(46,139,87,0.3);}
+        .badge-silver { background: var(--silver-pale); color: var(--silver-dark);border: 1px solid var(--silver-light);}
+        .badge-red    { background: #ffebee;             color: #c62828;           border: 1px solid #ffcdd2;            }
+
+        /* ── Rank Badges ── */
+        .rank-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #d4af37, #f1c40f); color: #1a2e1a; box-shadow: 0 0 8px rgba(212,175,55,0.5); }
+        .rank-2 { background: linear-gradient(135deg, #9e9e9e, #e0e0e0); color: #333; }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #e8a060); color: white; }
+        .rank-n { background: linear-gradient(135deg, var(--teal), var(--mint-dark)); color: white; }
+
+        /* ── Loading ── */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--silver-light);
+            border-top-color: var(--mint);
+            border-right-color: var(--teal);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Footer ── */
+        .footer {
+            background: var(--teal-dark);
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            padding: 14px;
+            font-size: 12px;
+            margin-left: 260px;
+            border-top: 2px solid rgba(0,229,204,0.15);
+        }
+
+        .footer span { color: var(--mint);       font-weight: 600; }
+        .footer b    { color: var(--gold-light);  font-weight: 700; }
+
+        @media (max-width: 1100px) {
+            .kpi-banner     { grid-template-columns: repeat(2, 1fr); }
+            .stat-row       { grid-template-columns: repeat(2, 1fr); }
+            .charts-two-col { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar      { display: none; }
+            .main-content { margin-left: 0; padding: 14px; }
+            .footer       { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <div class="topbar-logo">
+        <div class="topbar-logo-icon">S</div>
+        <div>
+            <div class="topbar-logo-text">Supermart Analytics</div>
+            <div class="topbar-logo-sub">Retail Intelligence Platform</div>
+        </div>
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-title">Grocery Sales Dashboard</span>
+        <span class="t-badge t-badge-white">Tamil Nadu 2015-2018</span>
+        <span class="t-badge t-badge-gold">9994 Orders</span>
+        <span class="t-badge t-badge-mint">Live Data</span>
+    </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-title">Navigation Menu</div>
+            <div class="sidebar-brand-sub">Click any section to explore</div>
+        </div>
+
+        <div class="sidebar-section-label">Main</div>
+        <button class="sidebar-btn active" onclick="showSection('home', this)">
+            <div class="sidebar-btn-icon">H</div>
+            <span>Home Overview</span>
+        </button>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Sales Analysis</div>
+
+        <button class="sidebar-btn" onclick="showSection('category', this)">
+            <div class="sidebar-btn-icon">C</div>
+            <span>Category Analysis</span>
+        </button>
+        <button class="sidebar-btn" onclick="showSection('region', this)">
+            <div class="sidebar-btn-icon">R</div>
+            <span>Region Analysis</span>
+        </button>
+        <button class="sidebar-btn" onclick="showSection('yearly', this)">
+            <div class="sidebar-btn-icon">Y</div>
+            <span>Yearly Trend</span>
+        </button>
+        <button class="sidebar-btn" onclick="showSection('monthly', this)">
+            <div class="sidebar-btn-icon">M</div>
+            <span>Monthly Trend</span>
+        </button>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Deep Dive</div>
+
+        <button class="sidebar-btn" onclick="showSection('cities', this)">
+            <div class="sidebar-btn-icon">T</div>
+            <span>Top Cities</span>
+        </button>
+        <button class="sidebar-btn" onclick="showSection('subcategory', this)">
+            <div class="sidebar-btn-icon">S</div>
+            <span>Sub Category</span>
+        </button>
+        <button class="sidebar-btn" onclick="showSection('discount', this)">
+            <div class="sidebar-btn-icon">D</div>
+            <span>Discount Analysis</span>
+        </button>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Intelligence</div>
+
+        <button class="sidebar-btn" onclick="showSection('ml', this)">
+            <div class="sidebar-btn-icon">ML</div>
+            <span>ML Results</span>
+        </button>
+        <button class="sidebar-btn" onclick="showSection('performance', this)">
+            <div class="sidebar-btn-icon">P</div>
+            <span>Performance</span>
+        </button>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-text">Supermart Grocery Sales<br/>Tamil Nadu India 2015-2018</div>
+            <div class="sidebar-footer-mint">Built with Flask + Chart.js</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- HOME -->
+        <section id="home" class="section active">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Home Overview</div>
+                    <div class="page-subtitle">Complete summary of Supermart grocery sales — Tamil Nadu 2015 to 2018</div>
+                </div>
+                <span class="page-tag">9994 Orders</span>
+            </div>
+
+            <div class="kpi-banner" id="kpi-cards">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div>Loading data...</div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <div>
+                        <div class="chart-card-title">Sales and Profit Over Time</div>
+                        <div class="chart-card-subtitle">Daily sales and profit from 2015 to 2018</div>
+                    </div>
+                    <span class="chart-card-badge">2015 - 2018</span>
+                </div>
+                <div class="chart-container-lg">
+                    <canvas id="home-timeline-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-card-title">Sales by Category</div>
+                            <div class="chart-card-subtitle">Revenue per grocery category</div>
+                        </div>
+                        <span class="chart-card-badge">Category</span>
+                    </div>
+                    <div class="chart-container-sm">
+                        <canvas id="home-category-chart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-card-title">Sales by Region</div>
+                            <div class="chart-card-subtitle">Revenue split by region</div>
+                        </div>
+                        <span class="chart-card-badge">Region</span>
+                    </div>
+                    <div class="chart-container-sm">
+                        <canvas id="home-region-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CATEGORY -->
+        <section id="category" class="section">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">Category Analysis</div>
+                    <div class="page-subtitle">Sales, profit and orders by grocery category</div>
+                </div>
+                <span class="page-tag">7 Categories</span>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Total Sales by Category</div><div class="chart-card-subtitle">Which category generates most revenue</div></div>
+                        <span class="chart-card-badge">Sales</span>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="cat-sales-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Total Profit by Category</div><div class="chart-card-subtitle">Most profitable categories</div></div>
+                        <span class="chart-card-badge">Profit</span>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="cat-profit-chart"></canvas></div>
+                </div>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Order Count by Category</div><div class="chart-card-subtitle">Volume of orders per category</div></div>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="cat-orders-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Average Order Value</div><div class="chart-card-subtitle">Avg sales per order by category</div></div>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="cat-avg-chart"></canvas></div>
+                </div>
+            </div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div><div class="table-card-title">Category Summary Table</div><div class="table-card-subtitle">All metrics for every category</div></div>
+                </div>
+                <table>
+                    <thead><tr><th>Category</th><th>Total Orders</th><th>Total Sales</th><th>Total Profit</th><th>Avg Sales</th><th>Avg Profit</th><th>Avg Discount</th></tr></thead>
+                    <tbody id="cat-table-body"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- REGION -->
+        <section id="region" class="section">
+            <div class="page-header">
+                <div><div class="page-title">Region Analysis</div><div class="page-subtitle">North, South, East, West performance breakdown</div></div>
+                <span class="page-tag">4 Regions</span>
+            </div>
+            <div class="stat-row" id="region-stat-boxes">
+                <div class="loading">Loading...</div>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Sales by Region</div><div class="chart-card-subtitle">Total revenue per region</div></div>
+                        <span class="chart-card-badge">Bar</span>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="region-sales-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Profit by Region</div><div class="chart-card-subtitle">Profit share distribution</div></div>
+                        <span class="chart-card-badge">Doughnut</span>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="region-profit-chart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- YEARLY -->
+        <section id="yearly" class="section">
+            <div class="page-header">
+                <div><div class="page-title">Yearly Sales Trend</div><div class="page-subtitle">Year over year performance from 2015 to 2018</div></div>
+                <span class="page-tag">4 Years</span>
+            </div>
+            <div class="stat-row" id="yearly-stat-boxes">
+                <div class="loading">Loading...</div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <div><div class="chart-card-title">Yearly Sales and Profit</div><div class="chart-card-subtitle">Side by side comparison each year</div></div>
+                    <span class="chart-card-badge">2015 - 2018</span>
+                </div>
+                <div class="chart-container"><canvas id="yearly-chart"></canvas></div>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Sales Share by Year</div><div class="chart-card-subtitle">Percentage contribution per year</div></div>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="yearly-pie-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Category Sales per Year</div><div class="chart-card-subtitle">Stacked yearly category breakdown</div></div>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="yearly-category-chart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MONTHLY -->
+        <section id="monthly" class="section">
+            <div class="page-header">
+                <div><div class="page-title">Monthly Sales Trend</div><div class="page-subtitle">Month wise sales pattern across all years</div></div>
+                <span class="page-tag">12 Months</span>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <div><div class="chart-card-title">Monthly Sales Line Chart</div><div class="chart-card-subtitle">Total sales aggregated per month</div></div>
+                    <span class="chart-card-badge">Jan - Dec</span>
+                </div>
+                <div class="chart-container"><canvas id="monthly-sales-chart"></canvas></div>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Monthly Profit</div><div class="chart-card-subtitle">Total profit earned per month</div></div>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="monthly-profit-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Monthly Order Count</div><div class="chart-card-subtitle">Number of orders placed per month</div></div>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="monthly-orders-chart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOP CITIES -->
+        <section id="cities" class="section">
+            <div class="page-header">
+                <div><div class="page-title">Top Cities Analysis</div><div class="page-subtitle">Best performing cities across Tamil Nadu</div></div>
+                <span class="page-tag">Top 10</span>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Top 10 Cities by Sales</div><div class="chart-card-subtitle">Highest revenue generating cities</div></div>
+                        <span class="chart-card-badge">Sales</span>
+                    </div>
+                    <div class="chart-container-md"><canvas id="cities-sales-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Top 10 Cities by Profit</div><div class="chart-card-subtitle">Most profitable cities</div></div>
+                        <span class="chart-card-badge">Profit</span>
+                    </div>
+                    <div class="chart-container-md"><canvas id="cities-profit-chart"></canvas></div>
+                </div>
+            </div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div><div class="table-card-title">Top 10 Cities Table</div><div class="table-card-subtitle">Sales, profit and orders breakdown</div></div>
+                </div>
+                <table>
+                    <thead><tr><th>Rank</th><th>City</th><th>Total Sales</th><th>Total Profit</th><th>Total Orders</th></tr></thead>
+                    <tbody id="cities-table-body"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SUB CATEGORY -->
+        <section id="subcategory" class="section">
+            <div class="page-header">
+                <div><div class="page-title">Sub Category Analysis</div><div class="page-subtitle">Top 10 sub categories by sales and profit</div></div>
+                <span class="page-tag">Top 10</span>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Top 10 by Sales</div><div class="chart-card-subtitle">Highest selling sub categories</div></div>
+                    </div>
+                    <div class="chart-container-md"><canvas id="subcat-sales-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Top 10 by Profit</div><div class="chart-card-subtitle">Most profitable sub categories</div></div>
+                    </div>
+                    <div class="chart-container-md"><canvas id="subcat-profit-chart"></canvas></div>
+                </div>
+            </div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div><div class="table-card-title">Sub Category Table</div><div class="table-card-subtitle">Detailed view of top sub categories</div></div>
+                </div>
+                <table>
+                    <thead><tr><th>Sub Category</th><th>Total Sales</th><th>Total Profit</th><th>Total Orders</th></tr></thead>
+                    <tbody id="subcat-table-body"><tr><td colspan="4" class="loading">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- DISCOUNT -->
+        <section id="discount" class="section">
+            <div class="page-header">
+                <div><div class="page-title">Discount Analysis</div><div class="page-subtitle">How discounts impact sales, profit and margins</div></div>
+                <span class="page-tag">Discount vs Profit</span>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Avg Discount by Category</div><div class="chart-card-subtitle">Which category gives most discount</div></div>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="discount-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">Avg Profit Margin by Category</div><div class="chart-card-subtitle">Profit margin after discounts</div></div>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="margin-chart"></canvas></div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <div><div class="chart-card-title">Profitable vs Loss Orders by Category</div><div class="chart-card-subtitle">Count of profitable and loss making orders</div></div>
+                </div>
+                <div class="chart-container"><canvas id="profit-rate-chart"></canvas></div>
+            </div>
+        </section>
+
+        <!-- ML -->
+        <section id="ml" class="section">
+            <div class="page-header">
+                <div><div class="page-title">Machine Learning Results</div><div class="page-subtitle">Sales prediction — Linear Regression, Random Forest, XGBoost</div></div>
+                <span class="page-tag">3 Models</span>
+            </div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div><div class="table-card-title">Model Performance Summary</div><div class="table-card-subtitle">RMSE, MAE, R2 for all 3 models</div></div>
+                </div>
+                <table>
+                    <thead><tr><th>Model</th><th>RMSE</th><th>MAE</th><th>R2 Score</th><th>Performance</th></tr></thead>
+                    <tbody id="ml-table-body"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+                </table>
+            </div>
+            <div class="charts-two-col">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">R2 Score Comparison</div><div class="chart-card-subtitle">Higher is better</div></div>
+                        <span class="chart-card-badge">Higher Better</span>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="ml-r2-chart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div><div class="chart-card-title">RMSE Comparison</div><div class="chart-card-subtitle">Lower is better</div></div>
+                        <span class="chart-card-badge">Lower Better</span>
+                    </div>
+                    <div class="chart-container-sm"><canvas id="ml-rmse-chart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PERFORMANCE -->
+        <section id="performance" class="section">
+            <div class="page-header">
+                <div><div class="page-title">Performance Analysis</div><div class="page-subtitle">Top customers and loss making orders</div></div>
+                <span class="page-tag">Customers + Losses</span>
+            </div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div><div class="table-card-title">Top 15 Customers by Sales</div><div class="table-card-subtitle">Highest value customers of Supermart</div></div>
+                </div>
+                <table>
+                    <thead><tr><th>Rank</th><th>Customer Name</th><th>Total Orders</th><th>Total Sales</th><th>Total Profit</th><th>Avg Order Value</th></tr></thead>
+                    <tbody id="customers-table-body"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+                </table>
+            </div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div><div class="table-card-title">Loss Making Orders</div><div class="table-card-subtitle">Orders with negative profit</div></div>
+                </div>
+                <table>
+                    <thead><tr><th>Order ID</th><th>Customer</th><th>Category</th><th>City</th><th>Sales</th><th>Profit</th></tr></thead>
+                    <tbody id="loss-table-body"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<footer class="footer">
+    Supermart Grocery Sales Analytics —
+    <b>Tamil Nadu India</b> —
+    2015 to 2018 —
+    Built with <span>Flask</span> and <span>Chart.js</span>
+</footer>
+
+<script src="/static/js/chart.umd.min.js"></script>
+<script src="/static/js/charts.js"></script>
+</body>
+</html>

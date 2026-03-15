@@ -1,0 +1,8 @@
+Category,total_sales,total_profit,order_count,avg_discount,avg_margin
+Bakery,869538,212309.89,568,0.23,24.75
+Beverages,780523,189622.58,530,0.23,24.47
+"Eggs, Meat & Fish",948304,234050.78,624,0.22,24.74
+Food Grains,833326,207840.63,556,0.23,24.76
+Fruits & Veggies,877861,221754.77,582,0.23,25.08
+Oil & Masala,833099,205029.13,565,0.23,24.3
+Snacks,910849,232451.25,617,0.22,25.22

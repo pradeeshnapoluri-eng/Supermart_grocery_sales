@@ -1,0 +1,4 @@
+Model,RMSE,MAE,R2
+Linear Regression,148.8328,106.6518,0.9338
+Random Forest,23.3498,16.34,0.9984
+XGBoost,26.3845,18.5296,0.9979

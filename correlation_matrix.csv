@@ -1,0 +1,6 @@
+,Sales,Discount,Profit,Profit Margin,Discount Amount
+Sales,1.0,-0.0171,0.6042,0.0132,0.7321
+Discount,-0.0171,1.0,-0.0193,-0.0076,0.6236
+Profit,0.6042,-0.0193,1.0,0.7515,0.4351
+Profit Margin,0.0132,-0.0076,0.7515,1.0,0.002
+Discount Amount,0.7321,0.6236,0.4351,0.002,1.0

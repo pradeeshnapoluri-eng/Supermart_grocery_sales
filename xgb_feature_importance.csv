@@ -1,0 +1,16 @@
+Feature,Importance
+Discount Amount,0.53916925
+Discount,0.29094273
+Profit,0.15579204
+Profit Margin,0.012130848
+month_no,0.00032388233
+year,0.00031496683
+Sub_Cat_enc,0.0002793198
+City_enc,0.00026289135
+Month_enc,0.00024144995
+Order Day,0.00020491512
+Region_enc,0.00019230836
+Category_enc,0.00014536887
+State_enc,0.0
+Order Month,0.0
+Order Year,0.0
